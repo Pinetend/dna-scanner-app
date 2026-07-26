@@ -16,7 +16,9 @@ def process_payment():
 
 # --- 1. ROZBUDOWANA BAZA WIEDZY (Podział na Free i Premium) ---
 knowledge_base = {
-    # DARMOWE CECHY
+    # ==========================================
+    # 🟢 PAKIET DARMOWY (Przynęta)
+    # ==========================================
     "rs762551": {
         "name": "☕ Metabolizm kofeiny (CYP1A2)", "is_premium": False,
         "AA": {"title": "Szybki metabolizm", "description": "Kofeina daje Ci mocnego kopa, ale szybko znika z krwiobiegu."},
@@ -29,24 +31,63 @@ knowledge_base = {
         "CT": {"title": "Typ mieszany", "description": "Masz świetny balans między siłą a wytrzymałością."},
         "TT": {"title": "Urodzony maratończyk", "description": "Masz naturalną przewagę w sportach wytrzymałościowych."}
     },
-    # PŁATNE CECHY (PREMIUM)
+
+    # ==========================================
+    # 🌟 PAKIET PREMIUM: DIETA I METABOLIZM
+    # ==========================================
     "rs9939609": {
         "name": "🔥 Spalanie tłuszczu i apetyt (Gen FTO)", "is_premium": True,
         "TT": {"title": "Niskie ryzyko otyłości", "description": "Twój organizm dobrze reguluje uczucie sytości. Masz standardowe tempo spalania tkanki tłuszczowej."},
         "TA": {"title": "Podwyższone uczucie głodu", "description": "Możesz mieć genetyczną skłonność do podjadania i nieco wolniejszy metabolizm."},
         "AA": {"title": "Wysokie ryzyko otyłości", "description": "Gen 'FTO' sprawia, że po posiłku wolniej czujesz sytość. Musisz uważać na kalorykę."}
     },
-    "rs12913832": {
-        "name": "👁️ Kolor oczu (Gen OCA2/HERC2)", "is_premium": True,
-        "AA": {"title": "Brązowe", "description": "Posiadasz wariant silnie związany z produkcją melaniny, co zazwyczaj daje ciemny kolor tęczówki."},
-        "AG": {"title": "Mieszany (Piwny/Zielony)", "description": "Genotyp heterozygotyczny. Produkcja melaniny jest umiarkowana."},
-        "GG": {"title": "Jasne (Niebieskie/Szare)", "description": "Ten wariant wyłącza produkcję dużej ilości melaniny w tęczówce, co skutkuje jasnym kolorem oczu."}
+    "rs671": {
+        "name": "🍷 Tolerancja alkoholu (ALDH2)", "is_premium": True,
+        "GG": {"title": "Normalna tolerancja", "description": "Twój organizm prawidłowo rozkłada toksyczny aldehyd octowy. Nie doświadczasz tzw. 'Asian flush'."},
+        "GA": {"title": "Słaba tolerancja", "description": "Masz znacznie obniżoną zdolność rozkładu alkoholu. Możesz odczuwać zaczerwienienie twarzy i szybsze bicie serca po wypiciu."},
+        "AA": {"title": "Brak tolerancji", "description": "Twoja wątroba ma ogromne trudności z metabolizmem alkoholu. Spożywanie alkoholu jest dla Ciebie wysoce toksyczne."}
     },
+    "rs4988235": {
+        "name": "🥛 Trawienie laktozy (MCM6)", "is_premium": True,
+        "TT": {"title": "Pełna tolerancja", "description": "Twoje geny pozwalają na bezproblemowe trawienie mleka krowiego w dorosłym życiu."},
+        "CT": {"title": "Dobra tolerancja", "description": "Prawdopodobnie dobrze trawisz nabiał, choć tolerancja może delikatnie spadać z wiekiem."},
+        "CC": {"title": "Nietolerancja laktozy", "description": "Twój organizm przestał produkować laktazę. Zwykłe mleko może powodować silny dyskomfort."}
+    },
+
+    # ==========================================
+    # 🌟 PAKIET PREMIUM: WITAMINY I ZDROWIE
+    # ==========================================
     "rs2282679": {
         "name": "☀️ Przyswajanie Witaminy D (GC)", "is_premium": True,
         "AA": {"title": "Prawidłowy poziom", "description": "Twoje geny sprzyjają utrzymaniu optymalnego poziomu witaminy D we krwi."},
         "AC": {"title": "Umiarkowane ryzyko niedoboru", "description": "Masz lekko obniżoną zdolność transportu witaminy D. Rozważ suplementację w zimie."},
         "CC": {"title": "Wysokie ryzyko niedoboru", "description": "Twój genotyp wiąże się ze znacznie gorszym transportem witaminy D. Koniecznie badaj jej poziom!"}
+    },
+    "rs1801133": {
+        "name": "🥬 Kwas foliowy i detoks (MTHFR)", "is_premium": True,
+        "CC": {"title": "Optymalny metabolizm", "description": "Twój enzym MTHFR działa na 100%. Świetnie przyswajasz zwykły kwas foliowy z diety."},
+        "CT": {"title": "Obniżona wydajność (o 30%)", "description": "Twój organizm nieco gorzej przetwarza kwas foliowy. Warto zadbać o zielone warzywa w diecie."},
+        "TT": {"title": "Niska wydajność (o 70%)", "description": "Posiadasz mutację, która drastycznie utrudnia przyswajanie zwykłego kwasu foliowego. Rozważ suplementację formą metylowaną."}
+    },
+
+    # ==========================================
+    # 🌟 PAKIET PREMIUM: UMYSŁ I STRES
+    # ==========================================
+    "rs4680": {
+        "name": "🧠 Radzenie sobie ze stresem (Gen COMT)", "is_premium": True,
+        "GG": {"title": "Typ Wojownika (Warrior)", "description": "Twój mózg szybko usuwa dopaminę. Jesteś niezwykle opanowany pod presją i świetnie radzisz sobie w stresujących sytuacjach, ale możesz potrzebować silnych bodźców do motywacji na co dzień."},
+        "AG": {"title": "Typ Mieszany", "description": "Posiadasz optymalny balans między pracą pod presją a codzienną koncentracją i kreatywnością."},
+        "AA": {"title": "Typ Myśliciela (Worrier)", "description": "Masz wysoki poziom dopaminy na co dzień. Masz świetną pamięć, wysoką empatię i kreatywność, ale w sytuacjach silnego stresu łatwo się przebodźcowujesz i panikujesz."}
+    },
+
+    # ==========================================
+    # 🌟 PAKIET PREMIUM: CECHY FIZYCZNE
+    # ==========================================
+    "rs12913832": {
+        "name": "👁️ Kolor oczu (Gen OCA2/HERC2)", "is_premium": True,
+        "AA": {"title": "Brązowe", "description": "Posiadasz wariant silnie związany z produkcją melaniny, co zazwyczaj daje ciemny kolor tęczówki."},
+        "AG": {"title": "Mieszany (Piwny/Zielony)", "description": "Genotyp heterozygotyczny. Produkcja melaniny jest umiarkowana."},
+        "GG": {"title": "Jasne (Niebieskie/Szare)", "description": "Ten wariant wyłącza produkcję dużej ilości melaniny w tęczówce, co skutkuje jasnym kolorem oczu."}
     }
 }
 
