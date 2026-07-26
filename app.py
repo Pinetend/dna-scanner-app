@@ -20,8 +20,11 @@ def process_payment():
     st.session_state.is_paid = True
 
 # --- FUNKCJE GENEROWANIA PDF ---
-def usun_emoji(tekst):
-    """Usuwa tylko emotikony (PDFy ich nie obsługują), ale zostawia polskie znaki!"""
+def wyczysc_tekst(tekst):
+    """Usuwa emotikony i ukryte 'twarde spacje', które powodują błędy w PDF."""
+    # Zamiana twardych spacji (częsty błąd przy kopiowaniu) na zwykłe
+    tekst = tekst.replace('\xa0', ' ')
+    
     emotikony = ['☕', '🏃', '🔥', '🍷', '🥛', '☀️', '🥬', '🧠', '👁️', '🌟']
     for emoji in emotikony:
         tekst = tekst.replace(emoji, '')
@@ -30,23 +33,23 @@ def usun_emoji(tekst):
 def stworz_pdf(raport):
     pdf = FPDF()
     
-    # Odwołujemy się do lokalnego pliku
     font_path = "Roboto-Regular.ttf"
-    
-    # Dodanie czcionki do systemu PDF
     pdf.add_font("Roboto", style="", fname=font_path)
     
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
+    # Zabezpieczenie: Pobieramy dokładną, bezpieczną szerokość obszaru roboczego
+    szerokosc = pdf.epw 
+    
     # Nagłówek dokumentu
     pdf.set_font("Roboto", size=18)
     pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, txt="Twój Osobisty Raport DNA", new_x="LMARGIN", new_y="NEXT", align='C')
+    pdf.cell(szerokosc, 10, txt="Twój Osobisty Raport DNA", new_x="LMARGIN", new_y="NEXT", align='C')
     
     pdf.set_font("Roboto", size=10)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 10, txt="Wygenerowano bezpiecznie przez YourDNA", new_x="LMARGIN", new_y="NEXT", align='C')
+    pdf.cell(szerokosc, 10, txt="Wygenerowano bezpiecznie przez YourDNA", new_x="LMARGIN", new_y="NEXT", align='C')
     pdf.ln(10)
     
     # Wypisywanie wyników
@@ -54,18 +57,18 @@ def stworz_pdf(raport):
         # Tytuł cechy (Niebieski)
         pdf.set_font("Roboto", size=14)
         pdf.set_text_color(41, 128, 185) 
-        pdf.multi_cell(0, 8, txt=usun_emoji(wynik['cecha']))
+        pdf.multi_cell(szerokosc, 8, txt=wyczysc_tekst(wynik['cecha']))
         
         # Genotyp i Diagnoza (Czarny)
         pdf.set_font("Roboto", size=11)
         pdf.set_text_color(0, 0, 0)
-        # TUTAJ JEST NASZ ZWYKŁY MINUS:
-        pdf.multi_cell(0, 6, txt=f"Genotyp: {wynik['genotyp']} - {usun_emoji(wynik['diagnoza'])}")
+        linia_diagnoza = f"Genotyp: {wynik['genotyp']} - {wynik['diagnoza']}"
+        pdf.multi_cell(szerokosc, 6, txt=wyczysc_tekst(linia_diagnoza))
         
         # Szczegóły (Szary)
         pdf.set_font("Roboto", size=10)
         pdf.set_text_color(60, 60, 60)
-        pdf.multi_cell(0, 6, txt=usun_emoji(wynik['szczegoly']))
+        pdf.multi_cell(szerokosc, 6, txt=wyczysc_tekst(wynik['szczegoly']))
         pdf.ln(6)
         
     # Zapis i zwrot pliku
