@@ -69,6 +69,19 @@ def stworz_pdf(raport):
         pdf.multi_cell(0, 6, txt=wyczysc_tekst(wynik['szczegoly']), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(6)
         
+    for wynik in gotowy_raport:
+        if wynik.get("is_premium"):
+            st.subheader(f"🌟 {wynik['cecha']}")
+        else:
+            st.subheader(wynik['cecha'])
+            
+        # Tutaj dodajemy ładną informację o rzadkości wariantu
+        st.caption(f"📊 Częstotliwość w populacji: **{wynik.get('czestotliwosc', 'Brak danych')}**")
+        
+        st.info(f"**Twój Genotyp:** {wynik['genotyp']} — {wynik['diagnoza']}")
+        st.write(wynik['szczegoly'])
+        st.write("---")
+        
     # Zapis i zwrot pliku
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         pdf.output(tmp.name)
