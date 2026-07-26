@@ -3,19 +3,61 @@ import pandas as pd
 import io
 import time
 import json
+import tempfile
+from fpdf import FPDF
 
 st.set_page_config(page_title="YourDNA | Poznaj Siebie", page_icon="🧬", layout="centered")
 
-# --- WCZYTYWANIE BAZY WIEDZY Z PLIKU JSON ---
+# --- WCZYTYWANIE BAZY WIEDZY ---
 with open("baza.json", "r", encoding="utf-8") as file:
     knowledge_base = json.load(file)
 
-# --- SYSTEM ZARZĄDZANIA SESJĄ (PŁATNOŚCIĄ) ---
+# --- SYSTEM ZARZĄDZANIA SESJĄ ---
 if 'is_paid' not in st.session_state:
     st.session_state.is_paid = False
 
 def process_payment():
     st.session_state.is_paid = True
+
+# --- FUNKCJE GENEROWANIA PDF ---
+def usun_pl_znaki(tekst):
+    """Usuwa polskie znaki i emoji, by uniknąć błędów renderowania w bazowym PDF."""
+    zamienniki = {'ą':'a', 'ć':'c', 'ę':'e', 'ł':'l', 'ń':'n', 'ó':'o', 'ś':'s', 'ź':'z', 'ż':'z',
+                  'Ą':'A', 'Ć':'C', 'Ę':'E', 'Ł':'L', 'Ń':'N', 'Ó':'O', 'Ś':'S', 'Ź':'Z', 'Ż':'Z',
+                  '☕':'', '🏃':'', '🔥':'', '🍷':'', '🥛':'', '☀️':'', '🥬':'', '🧠':'', '👁️':''}
+    for pol, ang in zamienniki.items():
+        tekst = tekst.replace(pol, ang)
+    return tekst.strip()
+
+def stworz_pdf(raport):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    
+    # Nagłówek dokumentu
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, txt="Twoj Osobisty Raport DNA", ln=True, align='C')
+    pdf.set_font("Arial", 'I', 10)
+    pdf.cell(0, 10, txt="Wygenerowano bezpiecznie przez YourDNA", ln=True, align='C')
+    pdf.ln(10)
+    
+    # Wypisywanie wyników
+    for wynik in raport:
+        pdf.set_font("Arial", 'B', 12)
+        pdf.multi_cell(0, 8, txt=usun_pl_znaki(wynik['cecha']))
+        
+        pdf.set_font("Arial", 'B', 10)
+        pdf.multi_cell(0, 6, txt=f"Genotyp: {usun_pl_znaki(wynik['genotyp'])} - {usun_pl_znaki(wynik['diagnoza'])}")
+        
+        pdf.set_font("Arial", '', 11)
+        pdf.multi_cell(0, 6, txt=usun_pl_znaki(wynik['szczegoly']))
+        pdf.ln(6)
+        
+    # Zapis i zwrot pliku w formie bajtów, by Streamlit mógł go pobrać
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        pdf.output(tmp.name)
+        with open(tmp.name, "rb") as f:
+            return f.read()
 
 # --- LOGIKA ANALIZY ---
 def parse_dna_file(file_content):
@@ -44,7 +86,7 @@ def generate_report(user_snps, k_base, has_paid):
 st.title("🧬 YourDNA | Odkryj swój kod")
 st.markdown("Wgraj swój surowy plik DNA. **Twój plik jest analizowany lokalnie i natychmiast usuwany.**")
 
-# Rozszerzony plik testowy
+# Plik testowy
 test_dna_content = """# Testowy plik DNA
 rsid\tchromosome\tposition\tgenotype
 rs762551\t1\t123\tAA
@@ -74,11 +116,23 @@ if uploaded_file is not None:
     if st.session_state.is_paid:
         st.balloons()
         st.success("🎉 Płatność przebiegła pomyślnie! Twój pełny profil genetyczny został odblokowany.")
+        
+        # Generator przycisku PDF pojawia się tylko w wersji Premium
+        pdf_bytes = stworz_pdf(gotowy_raport)
+        st.download_button(
+            label="📄 Pobierz swój raport w formacie PDF",
+            data=pdf_bytes,
+            file_name="Raport_YourDNA.pdf",
+            mime="application/pdf",
+            type="primary",
+            use_container_width=True
+        )
+        st.divider()
+        
     else:
         st.success("✅ Analiza zakończona! Oto darmowy raport:")
+        st.divider()
         
-    st.divider()
-    
     for wynik in gotowy_raport:
         if wynik.get("is_premium"):
             st.subheader(f"🌟 {wynik['cecha']}")
