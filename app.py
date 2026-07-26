@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 import io
-import time
 import json
 import tempfile
+import os
+import urllib.request
 from fpdf import FPDF
 
 st.set_page_config(page_title="YourDNA | Poznaj Siebie", page_icon="🧬", layout="centered")
@@ -20,40 +21,57 @@ def process_payment():
     st.session_state.is_paid = True
 
 # --- FUNKCJE GENEROWANIA PDF ---
-def usun_pl_znaki(tekst):
-    """Usuwa polskie znaki i emoji, by uniknąć błędów renderowania w bazowym PDF."""
-    zamienniki = {'ą':'a', 'ć':'c', 'ę':'e', 'ł':'l', 'ń':'n', 'ó':'o', 'ś':'s', 'ź':'z', 'ż':'z',
-                  'Ą':'A', 'Ć':'C', 'Ę':'E', 'Ł':'L', 'Ń':'N', 'Ó':'O', 'Ś':'S', 'Ź':'Z', 'Ż':'Z',
-                  '☕':'', '🏃':'', '🔥':'', '🍷':'', '🥛':'', '☀️':'', '🥬':'', '🧠':'', '👁️':''}
-    for pol, ang in zamienniki.items():
-        tekst = tekst.replace(pol, ang)
+def usun_emoji(tekst):
+    """Usuwa tylko emotikony (PDFy ich nie obsługują), ale zostawia polskie znaki!"""
+    emotikony = ['☕', '🏃', '🔥', '🍷', '🥛', '☀️', '🥬', '🧠', '👁️', '🌟']
+    for emoji in emotikony:
+        tekst = tekst.replace(emoji, '')
     return tekst.strip()
 
 def stworz_pdf(raport):
     pdf = FPDF()
+    
+    # Automatyczne pobranie czcionki z polskimi znakami (Roboto) z Google Fonts
+    font_path = "Roboto-Regular.ttf"
+    if not os.path.exists(font_path):
+        url = "https://github.com/google/fonts/raw/main/ofl/roboto/Roboto-Regular.ttf"
+        urllib.request.urlretrieve(url, font_path)
+        
+    # Dodanie czcionki do systemu PDF
+    pdf.add_font("Roboto", style="", fname=font_path)
+    
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
     # Nagłówek dokumentu
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, txt="Twoj Osobisty Raport DNA", ln=True, align='C')
-    pdf.set_font("Arial", 'I', 10)
-    pdf.cell(0, 10, txt="Wygenerowano bezpiecznie przez YourDNA", ln=True, align='C')
+    pdf.set_font("Roboto", size=18)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 10, txt="Twój Osobisty Raport DNA", new_x="LMARGIN", new_y="NEXT", align='C')
+    
+    pdf.set_font("Roboto", size=10)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 10, txt="Wygenerowano bezpiecznie przez YourDNA", new_x="LMARGIN", new_y="NEXT", align='C')
     pdf.ln(10)
     
     # Wypisywanie wyników
     for wynik in raport:
-        pdf.set_font("Arial", 'B', 12)
-        pdf.multi_cell(0, 8, txt=usun_pl_znaki(wynik['cecha']))
+        # Tytuł cechy (Niebieski)
+        pdf.set_font("Roboto", size=14)
+        pdf.set_text_color(41, 128, 185) 
+        pdf.multi_cell(0, 8, txt=usun_emoji(wynik['cecha']))
         
-        pdf.set_font("Arial", 'B', 10)
-        pdf.multi_cell(0, 6, txt=f"Genotyp: {usun_pl_znaki(wynik['genotyp'])} - {usun_pl_znaki(wynik['diagnoza'])}")
+        # Genotyp i Diagnoza (Czarny)
+        pdf.set_font("Roboto", size=11)
+        pdf.set_text_color(0, 0, 0)
+        pdf.multi_cell(0, 6, txt=f"Genotyp: {wynik['genotyp']} — {usun_emoji(wynik['diagnoza'])}")
         
-        pdf.set_font("Arial", '', 11)
-        pdf.multi_cell(0, 6, txt=usun_pl_znaki(wynik['szczegoly']))
+        # Szczegóły (Szary)
+        pdf.set_font("Roboto", size=10)
+        pdf.set_text_color(60, 60, 60)
+        pdf.multi_cell(0, 6, txt=usun_emoji(wynik['szczegoly']))
         pdf.ln(6)
         
-    # Zapis i zwrot pliku w formie bajtów, by Streamlit mógł go pobrać
+    # Zapis i zwrot pliku
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         pdf.output(tmp.name)
         with open(tmp.name, "rb") as f:
