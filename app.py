@@ -30,7 +30,7 @@ def usun_emoji(tekst):
 def stworz_pdf(raport):
     pdf = FPDF()
     
-    # Odwołujemy się do lokalnego pliku, który przed chwilą wrzuciłeś na GitHuba
+    # Odwołujemy się do lokalnego pliku
     font_path = "Roboto-Regular.ttf"
     
     # Dodanie czcionki do systemu PDF
@@ -59,8 +59,8 @@ def stworz_pdf(raport):
         # Genotyp i Diagnoza (Czarny)
         pdf.set_font("Roboto", size=11)
         pdf.set_text_color(0, 0, 0)
- # NOWA LINIA (ze zwykłym minusem):
-pdf.multi_cell(0, 6, txt=f"Genotyp: {wynik['genotyp']} - {usun_emoji(wynik['diagnoza'])}")
+        # TUTAJ JEST NASZ ZWYKŁY MINUS:
+        pdf.multi_cell(0, 6, txt=f"Genotyp: {wynik['genotyp']} - {usun_emoji(wynik['diagnoza'])}")
         
         # Szczegóły (Szary)
         pdf.set_font("Roboto", size=10)
