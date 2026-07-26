@@ -59,7 +59,8 @@ def stworz_pdf(raport):
         # Genotyp i Diagnoza (Czarny)
         pdf.set_font("Roboto", size=11)
         pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 6, txt=f"Genotyp: {wynik['genotyp']} — {usun_emoji(wynik['diagnoza'])}")
+ # NOWA LINIA (ze zwykłym minusem):
+pdf.multi_cell(0, 6, txt=f"Genotyp: {wynik['genotyp']} - {usun_emoji(wynik['diagnoza'])}")
         
         # Szczegóły (Szary)
         pdf.set_font("Roboto", size=10)
