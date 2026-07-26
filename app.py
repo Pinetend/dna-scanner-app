@@ -4,7 +4,6 @@ import io
 import json
 import tempfile
 import os
-import urllib.request
 from fpdf import FPDF
 
 st.set_page_config(page_title="YourDNA | Poznaj Siebie", page_icon="🧬", layout="centered")
@@ -31,12 +30,9 @@ def usun_emoji(tekst):
 def stworz_pdf(raport):
     pdf = FPDF()
     
-    # Automatyczne pobranie czcionki z polskimi znakami (Roboto) z Google Fonts
+    # Odwołujemy się do lokalnego pliku, który przed chwilą wrzuciłeś na GitHuba
     font_path = "Roboto-Regular.ttf"
-    if not os.path.exists(font_path):
-        url = "https://github.com/google/fonts/raw/main/ofl/roboto/Roboto-Regular.ttf"
-        urllib.request.urlretrieve(url, font_path)
-        
+    
     # Dodanie czcionki do systemu PDF
     pdf.add_font("Roboto", style="", fname=font_path)
     
@@ -76,7 +72,6 @@ def stworz_pdf(raport):
         pdf.output(tmp.name)
         with open(tmp.name, "rb") as f:
             return f.read()
-
 # --- LOGIKA ANALIZY ---
 def parse_dna_file(file_content):
     lines = [line for line in file_content.split('\n') if not line.startswith('#') and line.strip()]
