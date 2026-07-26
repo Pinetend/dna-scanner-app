@@ -39,17 +39,14 @@ def stworz_pdf(raport):
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # Zabezpieczenie: Pobieramy dokładną, bezpieczną szerokość obszaru roboczego
-    szerokosc = pdf.epw 
-    
     # Nagłówek dokumentu
     pdf.set_font("Roboto", size=18)
     pdf.set_text_color(0, 0, 0)
-    pdf.cell(szerokosc, 10, txt="Twój Osobisty Raport DNA", new_x="LMARGIN", new_y="NEXT", align='C')
+    pdf.cell(0, 10, txt="Twój Osobisty Raport DNA", new_x="LMARGIN", new_y="NEXT", align='C')
     
     pdf.set_font("Roboto", size=10)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(szerokosc, 10, txt="Wygenerowano bezpiecznie przez YourDNA", new_x="LMARGIN", new_y="NEXT", align='C')
+    pdf.cell(0, 10, txt="Wygenerowano bezpiecznie przez YourDNA", new_x="LMARGIN", new_y="NEXT", align='C')
     pdf.ln(10)
     
     # Wypisywanie wyników
@@ -57,18 +54,19 @@ def stworz_pdf(raport):
         # Tytuł cechy (Niebieski)
         pdf.set_font("Roboto", size=14)
         pdf.set_text_color(41, 128, 185) 
-        pdf.multi_cell(szerokosc, 8, txt=wyczysc_tekst(wynik['cecha']))
+        # Używamy new_x i new_y, aby tekst na 100% lądował w nowych liniach
+        pdf.multi_cell(0, 8, txt=wyczysc_tekst(wynik['cecha']), new_x="LMARGIN", new_y="NEXT")
         
         # Genotyp i Diagnoza (Czarny)
         pdf.set_font("Roboto", size=11)
         pdf.set_text_color(0, 0, 0)
         linia_diagnoza = f"Genotyp: {wynik['genotyp']} - {wynik['diagnoza']}"
-        pdf.multi_cell(szerokosc, 6, txt=wyczysc_tekst(linia_diagnoza))
+        pdf.multi_cell(0, 6, txt=wyczysc_tekst(linia_diagnoza), new_x="LMARGIN", new_y="NEXT")
         
         # Szczegóły (Szary)
         pdf.set_font("Roboto", size=10)
         pdf.set_text_color(60, 60, 60)
-        pdf.multi_cell(szerokosc, 6, txt=wyczysc_tekst(wynik['szczegoly']))
+        pdf.multi_cell(0, 6, txt=wyczysc_tekst(wynik['szczegoly']), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(6)
         
     # Zapis i zwrot pliku
