@@ -24,7 +24,7 @@ def wyczysc_tekst(tekst):
     """Usuwa emotikony i ukryte 'twarde spacje', które powodują błędy w PDF."""
     # Zamiana twardych spacji (częsty błąd przy kopiowaniu) na zwykłe
     tekst = tekst.replace('\xa0', ' ')
-    
+
     emotikony = ['☕', '🏃', '🔥', '🍷', '🥛', '☀️', '🥬', '🧠', '👁️', '🌟']
     for emoji in emotikony:
         tekst = tekst.replace(emoji, '')
@@ -32,48 +32,51 @@ def wyczysc_tekst(tekst):
 
 def stworz_pdf(raport):
     pdf = FPDF()
-    
+
     font_path = "Roboto-Regular.ttf"
     pdf.add_font("Roboto", style="", fname=font_path)
-    
+
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
+
+    # Zabezpieczenie: Pobieramy dokładną, bezpieczną szerokość obszaru roboczego
+    szerokosc = pdf.epw 
     
     # Nagłówek dokumentu
     pdf.set_font("Roboto", size=18)
     pdf.set_text_color(0, 0, 0)
+    pdf.cell(szerokosc, 10, txt="Twój Osobisty Raport DNA", new_x="LMARGIN", new_y="NEXT", align='C')
     pdf.cell(0, 10, txt="Twój Osobisty Raport DNA", new_x="LMARGIN", new_y="NEXT", align='C')
-    
+
     pdf.set_font("Roboto", size=10)
     pdf.set_text_color(100, 100, 100)
+    pdf.cell(szerokosc, 10, txt="Wygenerowano bezpiecznie przez YourDNA", new_x="LMARGIN", new_y="NEXT", align='C')
     pdf.cell(0, 10, txt="Wygenerowano bezpiecznie przez YourDNA", new_x="LMARGIN", new_y="NEXT", align='C')
     pdf.ln(10)
-    
+
     # Wypisywanie wyników
     for wynik in raport:
         # Tytuł cechy (Niebieski)
         pdf.set_font("Roboto", size=14)
         pdf.set_text_color(41, 128, 185) 
+        pdf.multi_cell(szerokosc, 8, txt=wyczysc_tekst(wynik['cecha']))
+        # Używamy new_x i new_y, aby tekst na 100% lądował w nowych liniach
         pdf.multi_cell(0, 8, txt=wyczysc_tekst(wynik['cecha']), new_x="LMARGIN", new_y="NEXT")
-        
-        # Częstotliwość w populacji (Szary mniejszy tekst)
-        pdf.set_font("Roboto", size=9)
-        pdf.set_text_color(120, 120, 120)
-        czestotliwosc_txt = f"Czestotliwosc w populacji: {wynik.get('czestotliwosc', 'Brak danych')}"
-        pdf.multi_cell(0, 5, txt=wyczysc_tekst(czestotliwosc_txt), new_x="LMARGIN", new_y="NEXT")
-        
+
         # Genotyp i Diagnoza (Czarny)
         pdf.set_font("Roboto", size=11)
         pdf.set_text_color(0, 0, 0)
         linia_diagnoza = f"Genotyp: {wynik['genotyp']} - {wynik['diagnoza']}"
+        pdf.multi_cell(szerokosc, 6, txt=wyczysc_tekst(linia_diagnoza))
         pdf.multi_cell(0, 6, txt=wyczysc_tekst(linia_diagnoza), new_x="LMARGIN", new_y="NEXT")
-        
+
         # Szczegóły (Szary)
         pdf.set_font("Roboto", size=10)
         pdf.set_text_color(60, 60, 60)
+        pdf.multi_cell(szerokosc, 6, txt=wyczysc_tekst(wynik['szczegoly']))
         pdf.multi_cell(0, 6, txt=wyczysc_tekst(wynik['szczegoly']), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(6)
-        
+
     # Zapis i zwrot pliku
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         pdf.output(tmp.name)
@@ -132,11 +135,11 @@ if uploaded_file is not None:
     file_content = uploaded_file.getvalue().decode("utf-8")
     genotypy_uzytkownika = parse_dna_file(file_content)
     gotowy_raport = generate_report(genotypy_uzytkownika, knowledge_base, st.session_state.is_paid)
-    
+
     if st.session_state.is_paid:
         st.balloons()
         st.success("🎉 Płatność przebiegła pomyślnie! Twój pełny profil genetyczny został odblokowany.")
-        
+
         # Generator przycisku PDF pojawia się tylko w wersji Premium
         pdf_bytes = stworz_pdf(gotowy_raport)
         st.download_button(
@@ -148,21 +151,21 @@ if uploaded_file is not None:
             use_container_width=True
         )
         st.divider()
-        
+
     else:
         st.success("✅ Analiza zakończona! Oto darmowy raport:")
         st.divider()
-        
+
     for wynik in gotowy_raport:
         if wynik.get("is_premium"):
             st.subheader(f"🌟 {wynik['cecha']}")
         else:
             st.subheader(wynik['cecha'])
-            
+
         st.info(f"**Twój Genotyp:** {wynik['genotyp']} — {wynik['diagnoza']}")
         st.write(wynik['szczegoly'])
         st.write("---")
-        
+
     if not st.session_state.is_paid:
         st.warning("🔒 **To tylko ułamek Twoich wyników!**")
         st.markdown("W Twoim pliku wykryliśmy ukryte geny odpowiadające za m.in. tolerancję alkoholu, przyswajanie witaminy D i radzenie sobie ze stresem.")
