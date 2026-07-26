@@ -1,62 +1,56 @@
 {
   "rs762551": {
-    "name": "☕ Metabolizm kofeiny (CYP1A2)", "is_premium": false, "czestotliwosc": "Ok. 40% populacji",
+    "name": "☕ Metabolizm kofeiny (CYP1A2)", "is_premium": false,
     "AA": {"title": "Szybki metabolizm", "description": "Kofeina daje Ci mocnego kopa, ale szybko znika z krwiobiegu."},
     "AC": {"title": "Umiarkowany metabolizm", "description": "Przetwarzasz kofeinę w standardowym tempie."},
     "CC": {"title": "Wolny metabolizm", "description": "Kofeina utrzymuje się we krwi bardzo długo. Pij kawę tylko rano."}
   },
   "rs1815739": {
-    "name": "🏃 Predyspozycje sportowe (ACTN3)", "is_premium": false, "czestotliwosc": "Ok. 30% populacji",
+    "name": "🏃 Predyspozycje sportowe (ACTN3)", "is_premium": false,
     "CC": {"title": "Gen sprintera", "description": "Twoje mięśnie są stworzone do sportów siłowych i szybkich zrywów."},
     "CT": {"title": "Typ mieszany", "description": "Masz świetny balans między siłą a wytrzymałością."},
     "TT": {"title": "Urodzony maratończyk", "description": "Masz naturalną przewagę w sportach wytrzymałościowych."}
   },
   "rs9939609": {
-    "name": "🔥 Spalanie tłuszczu i apetyt (Gen FTO)", "is_premium": true, "czestotliwosc": "Ok. 16% populacji (wariant ryzykowny)",
-    "TT": {"title": "Niskie ryzyko otyłości", "description": "Twój organizm dobrze reguluje uczucie sytości. Standardowe tempo metabolizmu."},
+    "name": "🔥 Spalanie tłuszczu i apetyt (Gen FTO)", "is_premium": true,
+    "TT": {"title": "Niskie ryzyko otyłości", "description": "Twój organizm dobrze reguluje uczucie sytości. Masz standardowe tempo spalania tkanki tłuszczowej."},
     "TA": {"title": "Podwyższone uczucie głodu", "description": "Możesz mieć genetyczną skłonność do podjadania i nieco wolniejszy metabolizm."},
-    "AA": {"title": "Wysokie ryzyko otyłości", "description": "Gen 'FTO' sprawia, że po posiłku wolniej czujesz sytość. Musisz bardziej uważać na kalorykę."}
+    "AA": {"title": "Wysokie ryzyko otyłości", "description": "Gen 'FTO' sprawia, że po posiłku wolniej czujesz sytość. Musisz uważać na kalorykę."}
   },
   "rs671": {
-    "name": "🍷 Tolerancja alkoholu (ALDH2)", "is_premium": true, "czestotliwosc": "Rzadkie w Europie (<1%), popularne w Azji",
-    "GG": {"title": "Normalna tolerancja", "description": "Twój organizm prawidłowo rozkłada toksyczny aldehyd octowy."},
-    "GA": {"title": "Słaba tolerancja", "description": "Obniżona zdolność rozkładu alkoholu. Możliwe zaczerwienienie twarzy."},
-    "AA": {"title": "Brak tolerancji (Unikalna mutacja)", "description": "Twoja wątroba ma ogromne trudności z metabolizmem alkoholu. Spożywanie go jest silnie toksyczne."}
+    "name": "🍷 Tolerancja alkoholu (ALDH2)", "is_premium": true,
+    "GG": {"title": "Normalna tolerancja", "description": "Twój organizm prawidłowo rozkłada toksyczny aldehyd octowy. Nie doświadczasz tzw. 'Asian flush'."},
+    "GA": {"title": "Słaba tolerancja", "description": "Masz znacznie obniżoną zdolność rozkładu alkoholu. Możesz odczuwać zaczerwienienie twarzy i szybsze bicie serca po wypiciu."},
+    "AA": {"title": "Brak tolerancji", "description": "Twoja wątroba ma ogromne trudności z metabolizmem alkoholu. Spożywanie alkoholu jest dla Ciebie wysoce toksyczne."}
   },
   "rs4988235": {
-    "name": "🥛 Trawienie laktozy (MCM6)", "is_premium": true, "czestotliwosc": "Ok. 35% populacji (w Europie częściej)",
+    "name": "🥛 Trawienie laktozy (MCM6)", "is_premium": true,
     "TT": {"title": "Pełna tolerancja", "description": "Twoje geny pozwalają na bezproblemowe trawienie mleka krowiego w dorosłym życiu."},
-    "CT": {"title": "Dobra tolerancja", "description": "Prawdopodobnie dobrze trawisz nabiał, choć tolerancja może spadać z wiekiem."},
-    "CC": {"title": "Nietolerancja laktozy", "description": "Twój organizm przestał produkować laktazę w dorosłości."}
+    "CT": {"title": "Dobra tolerancja", "description": "Prawdopodobnie dobrze trawisz nabiał, choć tolerancja może delikatnie spadać z wiekiem."},
+    "CC": {"title": "Nietolerancja laktozy", "description": "Twój organizm przestał produkować laktazę. Zwykłe mleko może powodować silny dyskomfort."}
   },
   "rs2282679": {
-    "name": "☀️ Przyswajanie Witaminy D (GC)", "is_premium": true, "czestotliwosc": "Ok. 45% populacji",
+    "name": "☀️ Przyswajanie Witaminy D (GC)", "is_premium": true,
     "AA": {"title": "Prawidłowy poziom", "description": "Twoje geny sprzyjają utrzymaniu optymalnego poziomu witaminy D we krwi."},
-    "AC": {"title": "Umiarkowane ryzyko niedoboru", "description": "Lekko obniżona zdolność transportu witaminy D. Rozważ suplementację w zimie."},
-    "CC": {"title": "Wysokie ryzyko niedoboru", "description": "Znacznie gorszy transport witaminy D. Koniecznie badaj jej poziom!"}
+    "AC": {"title": "Umiarkowane ryzyko niedoboru", "description": "Masz lekko obniżoną zdolność transportu witaminy D. Rozważ suplementację w zimie."},
+    "CC": {"title": "Wysokie ryzyko niedoboru", "description": "Twój genotyp wiąże się ze znacznie gorszym transportem witaminy D. Koniecznie badaj jej poziom!"}
   },
   "rs1801133": {
-    "name": "🥬 Kwas foliowy i detoks (MTHFR)", "is_premium": true, "czestotliwosc": "Ok. 10-15% populacji (homozygoty)",
-    "CC": {"title": "Optymalny metabolizm", "description": "Enzym MTHFR działa na 100%. Świetnie przyswajasz kwas foliowy."},
-    "CT": {"title": "Obniżona wydajność", "description": "Nieco gorsze przetwarzanie kwasu foliowego. Warto zadbać o dietę bogatą w zielone warzywa."},
-    "TT": {"title": "Niska wydajność (Rzadka mutacja)", "description": "Drastycznie utrudnione przyswajanie zwykłego kwasu foliowego. Rozważ formę metylowaną."}
+    "name": "🥬 Kwas foliowy i detoks (MTHFR)", "is_premium": true,
+    "CC": {"title": "Optymalny metabolizm", "description": "Twój enzym MTHFR działa na 100%. Świetnie przyswajasz zwykły kwas foliowy z diety."},
+    "CT": {"title": "Obniżona wydajność", "description": "Twój organizm nieco gorzej przetwarza kwas foliowy. Warto zadbać o zielone warzywa w diecie."},
+    "TT": {"title": "Niska wydajność", "description": "Posiadasz mutację, która drastycznie utrudnia przyswajanie zwykłego kwasu foliowego. Rozważ suplementację formą metylowaną."}
   },
   "rs4680": {
-    "name": "🧠 Radzenie sobie ze stresem (Gen COMT)", "is_premium": true, "czestotliwosc": "Ok. 25% populacji",
-    "GG": {"title": "Typ Wojownika (Warrior)", "description": "Twój mózg szybko usuwa dopaminę. Jesteś niezwykle opanowany pod presją."},
-    "AG": {"title": "Typ Mieszany", "description": "Optymalny balans między pracą pod presją a codzienną koncentracją."},
-    "AA": {"title": "Typ Myśliciela (Worrier)", "description": "Wysoki poziom dopaminy. Świetna pamięć i empatii, ale w stresie łatwo się przebodźcowujesz."}
+    "name": "🧠 Radzenie sobie ze stresem (Gen COMT)", "is_premium": true,
+    "GG": {"title": "Typ Wojownika (Warrior)", "description": "Twój mózg szybko usuwa dopaminę. Jesteś opanowany pod presją."},
+    "AG": {"title": "Typ Mieszany", "description": "Posiadasz optymalny balans między pracą pod presją a codzienną koncentracją."},
+    "AA": {"title": "Typ Myśliciela (Worrier)", "description": "Masz świetną pamięć i empatię, ale w sytuacjach silnego stresu łatwo się przebodźcowujesz."}
   },
   "rs12913832": {
-    "name": "👁️ Kolor oczu (Gen OCA2/HERC2)", "is_premium": true, "czestotliwosc": "Ok. 8-10% ludzi na świecie ma jasne oczy",
-    "AA": {"title": "Brązowe", "description": "Wariant silnie związany z produkcją dużej ilości melaniny."},
-    "AG": {"title": "Mieszany (Piwny/Zielony)", "description": "Umiarkowana produkcja melaniny w tęczówce."},
-    "GG": {"title": "Jasne (Niebieskie/Szare - Unikalne)", "description": "Ten wariant wyłącza produkcję melaniny, co skutkuje rzadszym, jasnym kolorem oczu."}
-  },
-  "rs1799971": {
-    "name": "🧬 Rzadka ciekawostka: Wrażliwość na ból (OPRM1)", "is_premium": true, "czestotliwosc": "Rzadkość (poniżej 5% populacji)",
-    "GG": {"title": "Standardowa wrażliwość", "description": "Twoje receptory opioidowe reagują standardowo na bodźce bólowe i środki przeciwbólowe."},
-    "AG": {"title": "Zwiększona odporność na ból", "description": "Posiadasz ciekawą mutację sprawiającą, że Twoje ciało może inaczej odczuwać ból fizyczny."},
-    "AA": {"title": "Unikalny profil receptorów (Elitarna odporność)", "description": "Ekstremalnie rzadki wariant genetyczny wpływający na układ nagrody i odczuwanie bólu."}
+    "name": "👁️ Kolor oczu (Gen OCA2/HERC2)", "is_premium": true,
+    "AA": {"title": "Brązowe", "description": "Posiadasz wariant silnie związany z produkcją melaniny, co zazwyczaj daje ciemny kolor tęczówki."},
+    "AG": {"title": "Mieszany (Piwny/Zielony)", "description": "Genotyp heterozygotyczny. Produkcja melaniny jest umiarkowana."},
+    "GG": {"title": "Jasne (Niebieskie/Szare)", "description": "Ten wariant wyłącza produkcję dużej ilości melaniny w tęczówce, co skutkuje jasnym kolorem oczu."}
   }
 }
