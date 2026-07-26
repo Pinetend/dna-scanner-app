@@ -54,8 +54,13 @@ def stworz_pdf(raport):
         # Tytuł cechy (Niebieski)
         pdf.set_font("Roboto", size=14)
         pdf.set_text_color(41, 128, 185) 
-        # Używamy new_x i new_y, aby tekst na 100% lądował w nowych liniach
         pdf.multi_cell(0, 8, txt=wyczysc_tekst(wynik['cecha']), new_x="LMARGIN", new_y="NEXT")
+        
+        # Częstotliwość w populacji (Szary mniejszy tekst)
+        pdf.set_font("Roboto", size=9)
+        pdf.set_text_color(120, 120, 120)
+        czestotliwosc_txt = f"Czestotliwosc w populacji: {wynik.get('czestotliwosc', 'Brak danych')}"
+        pdf.multi_cell(0, 5, txt=wyczysc_tekst(czestotliwosc_txt), new_x="LMARGIN", new_y="NEXT")
         
         # Genotyp i Diagnoza (Czarny)
         pdf.set_font("Roboto", size=11)
@@ -68,19 +73,6 @@ def stworz_pdf(raport):
         pdf.set_text_color(60, 60, 60)
         pdf.multi_cell(0, 6, txt=wyczysc_tekst(wynik['szczegoly']), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(6)
-        
-    for wynik in gotowy_raport:
-        if wynik.get("is_premium"):
-            st.subheader(f"🌟 {wynik['cecha']}")
-        else:
-            st.subheader(wynik['cecha'])
-            
-        # Tutaj dodajemy ładną informację o rzadkości wariantu
-        st.caption(f"📊 Częstotliwość w populacji: **{wynik.get('czestotliwosc', 'Brak danych')}**")
-        
-        st.info(f"**Twój Genotyp:** {wynik['genotyp']} — {wynik['diagnoza']}")
-        st.write(wynik['szczegoly'])
-        st.write("---")
         
     # Zapis i zwrot pliku
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
