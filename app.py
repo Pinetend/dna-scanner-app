@@ -118,11 +118,21 @@ def pobierz_wyniki_z_bazy(user_snps, jezyk="pl", has_paid=False):
 # --- INTERFEJS UŻYTKOWNIKA ---
 st.title("🧬 YourDNA | Odkryj swój kod")
 
-# Wybór języka (Tłumaczenia interfejsu)
-jezyk_wybor = st.radio("Wybierz język / Select language:", ["Polski (pl)", "English (en)"], horizontal=True)
-kod_jezyka = "pl" if "Polski" in jezyk_wybor else "en"
+# Wybór języka (Rozwijana lista z flagami i wyszukiwaniem)
+jezyki = {
+    "🇵🇱 Polski": "pl",
+    "🇬🇧 English": "en",
+    "🇩🇪 Deutsch": "de",
+    "🇫🇷 Français": "fr",
+    "🇪🇸 Español": "es",
+    "🇮🇹 Italiano": "it"
+}
 
-# Słownik interfejsu
+# st.selectbox pozwala na rozwijanie listy i wpisywanie tekstu z klawiatury!
+wybrany_jezyk = st.selectbox("🌍 Wybierz język / Select language:", list(jezyki.keys()))
+kod_jezyka = jezyki[wybrany_jezyk]
+
+# Rozbudowany słownik interfejsu (UI) dla wielu języków
 ui = {
     "pl": {
         "upload": "Wgraj swój surowy plik DNA. Twój plik jest analizowany lokalnie i natychmiast usuwany.",
@@ -148,7 +158,59 @@ ui = {
         "success_free": "✅ Analysis complete! Here is your free report:",
         "pay_warn": "🔒 This is just a fraction of your results!",
         "pay_desc": "We detected hidden genes responsible for alcohol tolerance, vitamin D absorption, and stress management.",
-        "pay_btn": "💳 Pay $25 (SIMULATION)"
+        "pay_btn": "💳 Pay 25 EUR (SIMULATION)"
+    },
+    "de": {
+        "upload": "Laden Sie Ihre rohe DNA-Datei hoch. Ihre Datei wird lokal analysiert und sofort gelöscht.",
+        "drag": "DNA-Datei hier ablegen (.txt/.csv)",
+        "no_file": "Haben Sie keine DNA-Datei?",
+        "test_btn": "📥 Testdatei herunterladen",
+        "success_pay": "🎉 Zahlung erfolgreich! Ihr vollständiges genetisches Profil wurde entsperrt.",
+        "pdf_btn": "📄 Laden Sie Ihren Bericht als PDF herunter",
+        "pdf_title": "Ihr persönlicher DNA-Bericht",
+        "success_free": "✅ Analyse abgeschlossen! Hier ist Ihr kostenloser Bericht:",
+        "pay_warn": "🔒 Dies ist nur ein Bruchteil Ihrer Ergebnisse!",
+        "pay_desc": "Wir haben versteckte Gene entdeckt, die für Alkoholtoleranz, Vitamin-D-Aufnahme und Stressbewältigung verantwortlich sind.",
+        "pay_btn": "💳 25 EUR Bezahlen (SIMULATION)"
+    },
+    "fr": {
+        "upload": "Téléchargez votre fichier ADN brut. Votre fichier est analysé localement et supprimé immédiatement.",
+        "drag": "Faites glisser le fichier ADN (.txt/.csv)",
+        "no_file": "Vous n'avez pas de fichier ADN ?",
+        "test_btn": "📥 Télécharger le fichier de test",
+        "success_pay": "🎉 Paiement réussi ! Votre profil génétique complet a été débloqué.",
+        "pdf_btn": "📄 Téléchargez votre rapport en PDF",
+        "pdf_title": "Votre rapport ADN personnel",
+        "success_free": "✅ Analyse terminée ! Voici votre rapport gratuit :",
+        "pay_warn": "🔒 Ce n'est qu'une fraction de vos résultats !",
+        "pay_desc": "Nous avons détecté des gènes cachés responsables de la tolérance à l'alcool, de l'absorption de la vitamine D et de la gestion du stress.",
+        "pay_btn": "💳 Payer 25 EUR (SIMULATION)"
+    },
+    "es": {
+        "upload": "Sube tu archivo de ADN sin procesar. Tu archivo se analiza localmente y se elimina de inmediato.",
+        "drag": "Arrastra el archivo de ADN (.txt/.csv)",
+        "no_file": "¿No tienes un archivo de ADN?",
+        "test_btn": "📥 Descargar archivo de prueba",
+        "success_pay": "🎉 ¡Pago exitoso! Tu perfil genético completo ha sido desbloqueado.",
+        "pdf_btn": "📄 Descarga tu informe en PDF",
+        "pdf_title": "Tu informe de ADN personal",
+        "success_free": "✅ ¡Análisis completado! Aquí tienes tu informe gratuito:",
+        "pay_warn": "🔒 ¡Esto es solo una fracción de tus resultados!",
+        "pay_desc": "Hemos detectado genes ocultos responsables de la tolerancia al alcohol, la absorción de vitamina D y el manejo del estrés.",
+        "pay_btn": "💳 Pagar 25 EUR (SIMULACIÓN)"
+    },
+    "it": {
+        "upload": "Carica il tuo file DNA grezzo. Il tuo file viene analizzato localmente ed eliminato immediatamente.",
+        "drag": "Trascina il file DNA (.txt/.csv)",
+        "no_file": "Non hai un file DNA?",
+        "test_btn": "📥 Scarica il file di test",
+        "success_pay": "🎉 Pagamento riuscito! Il tuo profilo genetico completo è stato sbloccato.",
+        "pdf_btn": "📄 Scarica il tuo rapporto in PDF",
+        "pdf_title": "Il tuo rapporto DNA personale",
+        "success_free": "✅ Analisi completata! Ecco il tuo rapporto gratuito:",
+        "pay_warn": "🔒 Questa è solo una frazione dei tuoi risultati!",
+        "pay_desc": "Abbiamo rilevato geni nascosti responsabili della tolleranza all'alcol, dell'assorbimento della vitamina D e della gestione dello stress.",
+        "pay_btn": "💳 Paga 25 EUR (SIMULAZIONE)"
     }
 }
 
