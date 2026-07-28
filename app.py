@@ -9,57 +9,16 @@ from fpdf import FPDF
 # 1. Ustawienia strony
 st.set_page_config(page_title="YourDNA | Panel Pacjenta", page_icon="🧬", layout="wide", initial_sidebar_state="expanded")
 
-# 2. Zaawansowany, sterylny CSS (Stylizacja pod aplikacje medyczne)
+# 2. Bezpieczny CSS (Tylko dla pigułek z wynikami)
 st.markdown("""
 <style>
-    /* Reset tła na sterylny, jasnoszary kolor (jak w Genotek) */
-    .stApp {
-        background-color: #f7f9fc;
-    }
-    
-    /* Czysty, biały pasek boczny z delikatnym cieniem */
-    [data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #e2e8f0;
-    }
-    
-    /* Naprawa kolorów tekstów i nagłówków */
-    h1, h2, h3, p, span, label {
-        color: #1e293b !important;
-        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif !important;
-    }
-    
-    /* Sekcja wgrywania pliku (Upload) - zrobiona na 'czysto' */
-    [data-testid="stFileUploadDropzone"] {
-        background-color: #ffffff !important;
-        border: 2px dashed #cbd5e1 !important;
-        border-radius: 16px !important;
-        padding: 30px !important;
-        transition: all 0.3s ease;
-    }
-    [data-testid="stFileUploadDropzone"]:hover {
-        border-color: #3b82f6 !important;
-        background-color: #eff6ff !important;
-    }
-    
-    /* Białe Karty z wynikami */
-    .dashboard-card {
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-        margin-bottom: 20px;
-    }
-    
     /* Pigułki statusu */
     .badge-red {
-        background-color: #fee2e2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; margin-left: 10px; border: 1px solid #fca5a5;
+        background-color: #fee2e2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-block; margin-left: 10px; border: 1px solid #fca5a5;
     }
     .badge-green {
-        background-color: #dcfce7; color: #22c55e; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; margin-left: 10px; border: 1px solid #86efac;
+        background-color: #dcfce7; color: #22c55e; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-block; margin-left: 10px; border: 1px solid #86efac;
     }
-    
     /* Ukrycie standardowego górnego paska Streamlit */
     header {visibility: hidden;}
 </style>
@@ -124,21 +83,18 @@ with st.sidebar:
 # --- GŁÓWNY PANEL (DASHBOARD) ---
 st.title("Panel Zdrowia i Predyspozycji")
 
-# Tworzymy elegancką kartę wokół uploadera
-st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-st.markdown("#### Wgraj plik sekwencjonowania")
-st.caption("Obsługiwane formaty: TXT, CSV (m.in. 23andMe, AncestryDNA, MyHeritage)")
-
-uploaded_file = st.file_uploader("", type=['txt', 'csv'], label_visibility="collapsed")
-st.markdown('</div>', unsafe_allow_html=True)
+# Natywna karta Streamlit (bez psucia HTML)
+with st.container(border=True):
+    st.markdown("#### Wgraj plik sekwencjonowania")
+    st.caption("Obsługiwane formaty: TXT, CSV (m.in. 23andMe, AncestryDNA, MyHeritage)")
+    uploaded_file = st.file_uploader("", type=['txt', 'csv'], label_visibility="collapsed")
 
 if not uploaded_file:
-    # Sekcja dla osób bez pliku
-    st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-    st.markdown("**Nie posiadasz własnego pliku DNA?** Zobacz, jak wygląda przykładowy raport.")
-    test_dna_content = "# Test DNA\nrsid\tchromosome\tposition\tgenotype\nrs762551\t1\t123\tAA\nrs1815739\t11\t123\tCC\nrs9939609\t16\t123\tTT"
-    st.download_button(label="📥 Pobierz plik demonstracyjny", data=test_dna_content, file_name="demo_dna.txt")
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Sekcja dla osób bez pliku (Natywna karta)
+    with st.container(border=True):
+        st.markdown("**Nie posiadasz własnego pliku DNA?** Zobacz, jak wygląda przykładowy raport.")
+        test_dna_content = "# Test DNA\nrsid\tchromosome\tposition\tgenotype\nrs762551\t1\t123\tAA\nrs1815739\t11\t123\tCC\nrs9939609\t16\t123\tTT"
+        st.download_button(label="📥 Pobierz plik demonstracyjny", data=test_dna_content, file_name="demo_dna.txt")
 
 if uploaded_file is not None:
     file_content = uploaded_file.getvalue().decode("utf-8")
@@ -151,30 +107,30 @@ if uploaded_file is not None:
     tab1, tab2, tab3 = st.tabs(["🩺 Wykryte Markery", "🍏 Dieta i Sport", "🔒 Raport Rozszerzony"])
     
     with tab1:
-        st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-        st.subheader("Wszystkie zbadane cechy")
-        st.caption("Poniżej znajduje się lista zidentyfikowanych wariantów genetycznych.")
-        
-        for wynik in gotowy_raport:
-            st.markdown(f"""
-            <div style="padding: 15px 0; border-bottom: 1px solid #f1f5f9;">
-                <span style="font-size: 1.1rem; font-weight: 600; color: #0f172a;">{wynik['cecha']}</span>
-                <span class="{wynik['badge']}">{wynik['diagnoza']} ({wynik['genotyp']})</span>
-                <p style="color: #64748b; margin-top: 8px; font-size: 0.95rem; line-height: 1.5;">{wynik['szczegoly']}</p>
-            </div>
-            """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.subheader("Wszystkie zbadane cechy")
+            st.caption("Poniżej znajduje się lista zidentyfikowanych wariantów genetycznych.")
+            st.divider()
+            
+            for wynik in gotowy_raport:
+                # Wyniki wyświetlamy czystym HTML, bo to tylko tekst (to jest bezpieczne)
+                st.markdown(f"""
+                <div style="padding-bottom: 15px;">
+                    <span style="font-size: 1.1rem; font-weight: 600;">{wynik['cecha']}</span>
+                    <span class="{wynik['badge']}">{wynik['diagnoza']} ({wynik['genotyp']})</span>
+                    <p style="color: gray; margin-top: 5px; font-size: 0.95rem;">{wynik['szczegoly']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                st.divider()
             
     with tab2:
-        st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-        st.info("Kategoryzacja szczegółowa dostępna wkrótce (wymaga przypisania tagów w bazie).")
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.info("Kategoryzacja szczegółowa dostępna wkrótce (wymaga przypisania tagów w bazie).")
         
     with tab3:
-        st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-        if not st.session_state.is_paid:
-            st.warning("Twój plik zawiera dziesiątki tysięcy nieprzeanalizowanych markerów (m.in. ryzyko urazów, metabolizm leków, choroby układu krążenia).")
-            st.button("💳 Odblokuj pełny profil za 99 zł", type="primary", use_container_width=True, on_click=process_payment)
-        else:
-            st.success("Wszystkie raporty zostały odblokowane!")
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            if not st.session_state.is_paid:
+                st.warning("Twój plik zawiera dziesiątki tysięcy nieprzeanalizowanych markerów (m.in. ryzyko urazów, metabolizm leków, choroby układu krążenia).")
+                st.button("💳 Odblokuj pełny profil za 99 zł", type="primary", use_container_width=True, on_click=process_payment)
+            else:
+                st.success("Wszystkie raporty zostały odblokowane!")
