@@ -9,16 +9,20 @@ from fpdf import FPDF
 # 1. Ustawienia strony
 st.set_page_config(page_title="YourDNA | Panel Pacjenta", page_icon="🧬", layout="wide", initial_sidebar_state="expanded")
 
-# 2. CSS z powrotem dodający piękne cienie i sterylny wygląd
+# 2. Bezpieczny CSS (Tylko to, co nie psuje nawigacji)
 st.markdown("""
 <style>
+    /* Ukrywamy tylko menu Streamlit i ikonę GitHub, zostawiamy strzałkę z boku! */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
     /* Białe Karty z miękkim cieniem (Dla wyników) */
     .dashboard-card {
         background-color: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
         padding: 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); /* Dodany delikatny cień! */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         margin-bottom: 20px;
     }
     
@@ -29,7 +33,6 @@ st.markdown("""
     .badge-green {
         background-color: #dcfce7; color: #22c55e; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-block; margin-left: 10px; border: 1px solid #86efac;
     }
-    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -82,7 +85,7 @@ with st.sidebar:
     kod_jezyka = jezyki[wybrany_jezyk]
     
     st.markdown("---")
-    st.markdown("🛡️ **Prywatność i Bezpieczeństwo**\n\nTwoje dane nie opuszczają tej przeglądarki.")
+    st.markdown("🛡️ **Prywatność**\n\nTwoje dane nie opuszczają przeglądarki.")
     
     if st.session_state.is_paid:
         st.success("● Wersja Pełna")
@@ -136,7 +139,7 @@ if uploaded_file is not None:
     with tab3:
         st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
         if not st.session_state.is_paid:
-            st.warning("Twój plik zawiera dziesiątki tysięcy nieprzeanalizowanych markerów (m.in. ryzyko urazów, metabolizm leków, choroby układu krążenia).")
+            st.warning("Twój plik zawiera dziesiątki tysięcy nieprzeanalizowanych markerów.")
             st.button("💳 Odblokuj pełny profil za 99 zł", type="primary", use_container_width=True, on_click=process_payment)
         else:
             st.success("Wszystkie raporty zostały odblokowane!")
