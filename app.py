@@ -6,76 +6,77 @@ import tempfile
 import os
 from fpdf import FPDF
 
-st.set_page_config(page_title="YourDNA | Poznaj Siebie", page_icon="🧬", layout="centered")
+# 1. Ustawienia strony na SZEROKIE (Dashboard)
+st.set_page_config(page_title="YourDNA | Dashboard", page_icon="🧬", layout="wide", initial_sidebar_state="expanded")
 
-# --- INICJALIZACJA BAZY (automatyczna dla MVP) ---
-# W środowisku produkcyjnym odpalamy stworz_baze.py osobno.
+# 2. Wstrzykiwanie "sterylnego" CSS (Stylizacja pod Genotek)
+st.markdown("""
+<style>
+    /* Gradientowy pasek boczny z Twojego zdjęcia */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #4b79a1 0%, #283e51 100%);
+        color: white !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
+    
+    /* Czyste białe tło główne */
+    .stApp {
+        background-color: #FAFAFB;
+    }
+    
+    /* Karty dashboardu */
+    .metric-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        border: 1px solid #f0f2f6;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    /* Pigułki statusu (jak 'mutation Detected' na zdjęciu) */
+    .badge-red {
+        background-color: #fff0f0;
+        color: #d32f2f;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        border: 1px solid #ffcdd2;
+        display: inline-block;
+        margin-left: 10px;
+    }
+    .badge-green {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        border: 1px solid #c8e6c9;
+        display: inline-block;
+        margin-left: 10px;
+    }
+    
+    /* Ukrycie standardowego nagłówka Streamlit */
+    header {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
+
+# --- INICJALIZACJA BAZY ---
 if not os.path.exists("baza_700k.db"):
     import stworz_baze
     stworz_baze.zainicjalizuj_baze()
 
-# --- SYSTEM ZARZĄDZANIA SESJĄ ---
 if 'is_paid' not in st.session_state:
     st.session_state.is_paid = False
 
 def process_payment():
     st.session_state.is_paid = True
 
-# --- FUNKCJE GENEROWANIA PDF ---
-def wyczysc_tekst(tekst):
-    tekst = str(tekst).replace('\xa0', ' ')
-    emotikony = ['☕', '🏃', '🔥', '🍷', '🥛', '☀️', '🥬', '🧠', '👁️', '🌟', '📊']
-    for emoji in emotikony:
-        tekst = tekst.replace(emoji, '')
-    return tekst.strip()
-
-def stworz_pdf(raport, tytul_pdf):
-    pdf = FPDF()
-    font_path = "Roboto-Regular.ttf"
-    
-    # Dodanie czcionki, jeśli istnieje w repozytorium
-    if os.path.exists(font_path):
-        pdf.add_font("Roboto", style="", fname=font_path)
-        pdf.set_font("Roboto", size=10)
-    else:
-        pdf.set_font("Arial", size=10)
-    
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    
-    # Nagłówek dokumentu
-    pdf.set_font(pdf.font_family, size=18)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, txt=wyczysc_tekst(tytul_pdf), new_x="LMARGIN", new_y="NEXT", align='C')
-    pdf.ln(10)
-    
-    # Wypisywanie wyników
-    for wynik in raport:
-        pdf.set_font(pdf.font_family, size=14)
-        pdf.set_text_color(41, 128, 185) 
-        pdf.multi_cell(0, 8, txt=wyczysc_tekst(wynik['cecha']), new_x="LMARGIN", new_y="NEXT")
-        
-        pdf.set_font(pdf.font_family, size=9)
-        pdf.set_text_color(120, 120, 120)
-        czest_txt = f"Czestotliwosc / Frequency: {wynik.get('czestotliwosc', 'Brak / N/A')}"
-        pdf.multi_cell(0, 5, txt=wyczysc_tekst(czest_txt), new_x="LMARGIN", new_y="NEXT")
-        
-        pdf.set_font(pdf.font_family, size=11)
-        pdf.set_text_color(0, 0, 0)
-        diag_txt = f"{wynik['genotyp']} - {wynik['diagnoza']}"
-        pdf.multi_cell(0, 6, txt=wyczysc_tekst(diag_txt), new_x="LMARGIN", new_y="NEXT")
-        
-        pdf.set_font(pdf.font_family, size=10)
-        pdf.set_text_color(60, 60, 60)
-        pdf.multi_cell(0, 6, txt=wyczysc_tekst(wynik['szczegoly']), new_x="LMARGIN", new_y="NEXT")
-        pdf.ln(6)
-        
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-        pdf.output(tmp.name)
-        with open(tmp.name, "rb") as f:
-            return f.read()
-
-# --- LOGIKA ANALIZY Z PANDAS ---
 def parse_dna_file(file_content):
     lines = [line for line in file_content.split('\n') if not line.startswith('#') and line.strip()]
     df = pd.read_csv(io.StringIO('\n'.join(lines)), sep=r'\s+', header=None, names=['rsid', 'chromosome', 'position', 'genotype'], dtype=str, on_bad_lines='skip')
@@ -85,202 +86,90 @@ def pobierz_wyniki_z_bazy(user_snps, jezyk="pl", has_paid=False):
     conn = sqlite3.connect("baza_700k.db")
     cursor = conn.cursor()
     raport = []
-    
     for rsid, user_genotype in user_snps.items():
         cursor.execute("SELECT name, is_premium, czestotliwosc FROM snp_database WHERE rsid = ?", (rsid,))
         snp_info = cursor.fetchone()
-        
         if snp_info:
             name, is_premium, czestotliwosc = snp_info
             if is_premium and not has_paid:
                 continue
-                
-            cursor.execute("""
-                SELECT tytul, opis FROM tlumaczenia_genow 
-                WHERE rsid = ? AND jezyk = ? AND genotyp = ?
-            """, (rsid, jezyk, user_genotype))
-            
+            cursor.execute("SELECT tytul, opis FROM tlumaczenia_genow WHERE rsid = ? AND jezyk = ? AND genotyp = ?", (rsid, jezyk, user_genotype))
             diag_info = cursor.fetchone()
             if diag_info:
                 tytul, opis = diag_info
+                # Prosta logika do ustalenia koloru pigułki
+                badge_class = "badge-red" if "ryzyko" in tytul.lower() or "wolny" in tytul.lower() else "badge-green"
                 raport.append({
-                    "cecha": name,
-                    "genotyp": user_genotype,
-                    "diagnoza": tytul,
-                    "szczegoly": opis,
-                    "is_premium": is_premium,
-                    "czestotliwosc": czestotliwosc
+                    "cecha": name, "genotyp": user_genotype, "diagnoza": tytul, 
+                    "szczegoly": opis, "is_premium": is_premium, "czestotliwosc": czestotliwosc, "badge": badge_class
                 })
-                
     conn.close()
     return raport
 
-# --- INTERFEJS UŻYTKOWNIKA ---
+# --- PANEL BOCZNY (SIDEBAR) ---
+with st.sidebar:
+    st.markdown("## 🧬 YourDNA")
+    st.markdown("---")
+    
+    jezyki = {"🇵🇱 Polski": "pl", "🇬🇧 English": "en"}
+    wybrany_jezyk = st.selectbox("Wybierz język / Language:", list(jezyki.keys()))
+    kod_jezyka = jezyki[wybrany_jezyk]
+    
+    st.markdown("---")
+    st.markdown("🛡️ **Prywatność**\nTwoje dane są przetwarzane lokalnie w przeglądarce.")
+    if st.session_state.is_paid:
+        st.success("Wersja Premium: Aktywna")
+    else:
+        st.warning("Wersja: Darmowa (Ograniczona)")
 
-# 1. Tworzymy puste "pudełko" na samej górze strony
-tytul_placeholder = st.empty()
+# --- GŁÓWNY PANEL (DASHBOARD) ---
+st.title("Panel Pacjenta")
+st.markdown("Przeglądaj swoje predyspozycje genetyczne w oparciu o wgrany profil DNA.")
 
-# 2. Wybór języka (wyświetli się od razu pod tytułem)
-jezyki = {
-    "🇵🇱 Polski": "pl",
-    "🇬🇧 English": "en",
-    "🇩🇪 Deutsch": "de",
-    "🇫🇷 Français": "fr",
-    "🇪🇸 Español": "es",
-    "🇮🇹 Italiano": "it"
-}
+uploaded_file = st.file_uploader("Dodaj plik genetyczny (.txt/.csv)", type=['txt', 'csv'])
 
-wybrany_jezyk = st.selectbox("🌍 Wybierz język / Select language:", list(jezyki.keys()))
-kod_jezyka = jezyki[wybrany_jezyk]
-
-# Rozbudowany słownik interfejsu (UI) dla wielu języków
-ui = {
-    "pl": {
-        "main_title": "Odkryj swój kod",
-        "upload": "Wgraj swój surowy plik DNA. Twój plik jest analizowany lokalnie i natychmiast usuwany.",
-        "drag": "Przeciągnij plik DNA (.txt/.csv)",
-        "no_file": "Nie masz pliku DNA?",
-        "test_btn": "📥 Pobierz plik testowy",
-        "success_pay": "🎉 Płatność przebiegła pomyślnie! Twój pełny profil genetyczny został odblokowany.",
-        "pdf_btn": "📄 Pobierz swój raport w formacie PDF",
-        "pdf_title": "Twój Osobisty Raport DNA",
-        "success_free": "✅ Analiza zakończona! Oto darmowy raport:",
-        "pay_warn": "🔒 To tylko ułamek Twoich wyników!",
-        "pay_desc": "W Twoim pliku wykryliśmy ukryte geny odpowiadające za m.in. tolerancję alkoholu, przyswajanie witaminy D i radzenie sobie ze stresem.",
-        "pay_btn": "💳 Zapłać 99 zł (SYMULACJA)"
-    },
-    "en": {
-        "main_title": "Discover your code",
-        "upload": "Upload your raw DNA file. Your file is analyzed locally and deleted immediately.",
-        "drag": "Drag and drop DNA file (.txt/.csv)",
-        "no_file": "Don't have a DNA file?",
-        "test_btn": "📥 Download test file",
-        "success_pay": "🎉 Payment successful! Your full genetic profile has been unlocked.",
-        "pdf_btn": "📄 Download your report in PDF",
-        "pdf_title": "Your Personal DNA Report",
-        "success_free": "✅ Analysis complete! Here is your free report:",
-        "pay_warn": "🔒 This is just a fraction of your results!",
-        "pay_desc": "We detected hidden genes responsible for alcohol tolerance, vitamin D absorption, and stress management.",
-        "pay_btn": "💳 Pay 25 EUR (SIMULATION)"
-    },
-    "de": {
-        "main_title": "Entdecke deinen Code",
-        "upload": "Laden Sie Ihre rohe DNA-Datei hoch. Ihre Datei wird lokal analysiert und sofort gelöscht.",
-        "drag": "DNA-Datei hier ablegen (.txt/.csv)",
-        "no_file": "Haben Sie keine DNA-Datei?",
-        "test_btn": "📥 Testdatei herunterladen",
-        "success_pay": "🎉 Zahlung erfolgreich! Ihr vollständiges genetisches Profil wurde entsperrt.",
-        "pdf_btn": "📄 Laden Sie Ihren Bericht als PDF herunter",
-        "pdf_title": "Ihr persönlicher DNA-Bericht",
-        "success_free": "✅ Analyse abgeschlossen! Hier ist Ihr kostenloser Bericht:",
-        "pay_warn": "🔒 Dies ist nur ein Bruchteil Ihrer Ergebnisse!",
-        "pay_desc": "Wir haben versteckte Gene entdeckt, die für Alkoholtoleranz, Vitamin-D-Aufnahme und Stressbewältigung verantwortlich sind.",
-        "pay_btn": "💳 25 EUR Bezahlen (SIMULATION)"
-    },
-    "fr": {
-        "main_title": "Découvrez votre code",
-        "upload": "Téléchargez votre fichier ADN brut. Votre fichier est analysé localement et supprimé immédiatement.",
-        "drag": "Faites glisser le fichier ADN (.txt/.csv)",
-        "no_file": "Vous n'avez pas de fichier ADN ?",
-        "test_btn": "📥 Télécharger le fichier de test",
-        "success_pay": "🎉 Paiement réussi ! Votre profil génétique complet a été débloqué.",
-        "pdf_btn": "📄 Téléchargez votre rapport en PDF",
-        "pdf_title": "Votre rapport ADN personnel",
-        "success_free": "✅ Analyse terminée ! Voici votre rapport gratuit :",
-        "pay_warn": "🔒 Ce n'est qu'une fraction de vos résultats !",
-        "pay_desc": "Nous avons détecté des gènes cachés responsables de la tolérance à l'alcool, de l'absorption de la vitamine D et de la gestion du stress.",
-        "pay_btn": "💳 Payer 25 EUR (SIMULATION)"
-    },
-    "es": {
-        "main_title": "Descubre tu código",
-        "upload": "Sube tu archivo de ADN sin procesar. Tu archivo se analiza localmente y se elimina de inmediato.",
-        "drag": "Arrastra el archivo de ADN (.txt/.csv)",
-        "no_file": "¿No tienes un archivo de ADN?",
-        "test_btn": "📥 Descargar archivo de prueba",
-        "success_pay": "🎉 ¡Pago exitoso! Tu perfil genético completo ha sido desbloqueado.",
-        "pdf_btn": "📄 Descarga tu informe en PDF",
-        "pdf_title": "Tu informe de ADN personal",
-        "success_free": "✅ ¡Análisis completado! Aquí tienes tu informe gratuito:",
-        "pay_warn": "🔒 ¡Esto es solo una fracción de tus resultados!",
-        "pay_desc": "Hemos detectado genes ocultos responsables de la tolerancia al alcohol, la absorción de vitamina D y el manejo del estrés.",
-        "pay_btn": "💳 Pagar 25 EUR (SIMULACIÓN)"
-    },
-    "it": {
-        "main_title": "Scopri il tuo codice",
-        "upload": "Carica il tuo file DNA grezzo. Il tuo file viene analizzato localmente ed eliminato immediatamente.",
-        "drag": "Trascina il file DNA (.txt/.csv)",
-        "no_file": "Non hai un file DNA?",
-        "test_btn": "📥 Scarica il file di test",
-        "success_pay": "🎉 Pagamento riuscito! Il tuo profilo genetico completo è stato sbloccato.",
-        "pdf_btn": "📄 Scarica il tuo rapporto in PDF",
-        "pdf_title": "Il tuo rapporto DNA personale",
-        "success_free": "✅ Analisi completata! Ecco il tuo rapporto gratuito:",
-        "pay_warn": "🔒 Questa è solo una frazione dei tuoi risultati!",
-        "pay_desc": "Abbiamo rilevato geni nascosti responsabili della tolleranza all'alcol, dell'assorbimento della vitamina D e della gestione dello stress.",
-        "pay_btn": "💳 Paga 25 EUR (SIMULAZIONE)"
-    }
-}
-
-t = ui[kod_jezyka]
-
-# 3. Znamy już język, więc wrzucamy przetłumaczony tytuł w miejsce pustego pudełka na górze!
-tytul_placeholder.title(f"🧬 YourDNA | {t['main_title']}")
-
-# Reszta interfejsu poniżej wyboru języka
-st.markdown(t["upload"])
-
-# Brakująca zawartość pliku testowego!
-test_dna_content = """# Test DNA File
-rsid\tchromosome\tposition\tgenotype
-rs762551\t1\t123\tAA
-rs1815739\t11\t123\tCC
-rs9939609\t16\t123\tTT
-"""
-
-col1, col2 = st.columns([2, 1])
-with col2:
-    st.markdown(t["no_file"])
-    st.download_button(label=t["test_btn"], data=test_dna_content, file_name="test_yourdna.txt", mime="text/plain", use_container_width=True)
-
-with col1:
-    uploaded_file = st.file_uploader(t["drag"], type=['txt', 'csv'])
+if not uploaded_file:
+    # Stylizowane miejsce na wgranie pliku
+    st.info("Oczekujemy na Twój plik z danymi genetycznymi. Przeciągnij go powyżej.")
+    test_dna_content = "# Test DNA\nrsid\tchromosome\tposition\tgenotype\nrs762551\t1\t123\tAA\nrs1815739\t11\t123\tCC\nrs9939609\t16\t123\tTT"
+    st.download_button(label="📥 Pobierz plik testowy", data=test_dna_content, file_name="test.txt")
 
 if uploaded_file is not None:
     file_content = uploaded_file.getvalue().decode("utf-8")
     genotypy_uzytkownika = parse_dna_file(file_content)
-    
     gotowy_raport = pobierz_wyniki_z_bazy(genotypy_uzytkownika, kod_jezyka, st.session_state.is_paid)
     
-    if st.session_state.is_paid:
-        st.balloons()
-        st.success(t["success_pay"])
-        
-        pdf_bytes = stworz_pdf(gotowy_raport, t["pdf_title"])
-        st.download_button(
-            label=t["pdf_btn"],
-            data=pdf_bytes,
-            file_name="Raport_YourDNA.pdf",
-            mime="application/pdf",
-            type="primary",
-            use_container_width=True
-        )
-        st.divider()
-    else:
-        st.success(t["success_free"])
-        st.divider()
-        
-    for wynik in gotowy_raport:
-        if wynik.get("is_premium"):
-            st.subheader(f"🌟 {wynik['cecha']}")
-        else:
-            st.subheader(wynik['cecha'])
+    # --- METRYKI (Hero Section) ---
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown(f'<div class="metric-card"><h4>Zbadane markery</h4><h2>{len(genotypy_uzytkownika):,}</h2></div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown(f'<div class="metric-card"><h4>Wykryte cechy</h4><h2>{len(gotowy_raport)}</h2></div>', unsafe_allow_html=True)
+    with col3:
+        status = "Zakończona" if st.session_state.is_paid else "Częściowa"
+        st.markdown(f'<div class="metric-card"><h4>Status analizy</h4><h2>{status}</h2></div>', unsafe_allow_html=True)
+
+    # --- ZAKŁADKI (TABS - jak na zdjęciu) ---
+    tab1, tab2, tab3 = st.tabs(["🩺 Wyniki ogólne", "🍏 Odżywianie i Dieta", "🔒 Zablokowane Raporty"])
+    
+    with tab1:
+        st.subheader("Wszystkie zbadane cechy")
+        for wynik in gotowy_raport:
+            # Tworzenie czystego wiersza w stylu Genotek (Tytuł + Pigułka)
+            st.markdown(f"""
+            <div style="padding: 15px 0; border-bottom: 1px solid #eee;">
+                <span style="font-size: 1.1rem; font-weight: 500; color: #333;">{wynik['cecha']}</span>
+                <span class="{wynik['badge']}">{wynik['diagnoza']} ({wynik['genotyp']})</span>
+                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">{wynik['szczegoly']}</p>
+            </div>
+            """, unsafe_allow_html=True)
             
-        st.caption(f"📊 {wynik.get('czestotliwosc', '')}")
-        st.info(f"**{wynik['genotyp']}** — {wynik['diagnoza']}")
-        st.write(wynik['szczegoly'])
-        st.write("---")
+    with tab2:
+        st.info("Kategoryzacja szczegółowa dostępna wkrótce (wymaga przypisania tagów w bazie).")
         
-    if not st.session_state.is_paid:
-        st.warning(f"**{t['pay_warn']}**")
-        st.markdown(t["pay_desc"])
-        st.button(t["pay_btn"], type="primary", use_container_width=True, on_click=process_payment)
+    with tab3:
+        if not st.session_state.is_paid:
+            st.warning("Twój plik zawiera znacznie więcej danych (m.in. ryzyko urazów, metabolizm leków).")
+            st.button("💳 Odblokuj pełny profil za 99 zł", type="primary", use_container_width=True, on_click=process_payment)
+        else:
+            st.success("Wszystkie raporty zostały odblokowane!")
