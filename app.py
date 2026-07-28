@@ -116,7 +116,6 @@ def pobierz_wyniki_z_bazy(user_snps, jezyk="pl", has_paid=False):
     return raport
 
 # --- INTERFEJS UŻYTKOWNIKA ---
-st.title("🧬 YourDNA | Odkryj swój kod")
 
 # Wybór języka (Rozwijana lista z flagami i wyszukiwaniem)
 jezyki = {
@@ -128,13 +127,13 @@ jezyki = {
     "🇮🇹 Italiano": "it"
 }
 
-# st.selectbox pozwala na rozwijanie listy i wpisywanie tekstu z klawiatury!
 wybrany_jezyk = st.selectbox("🌍 Wybierz język / Select language:", list(jezyki.keys()))
 kod_jezyka = jezyki[wybrany_jezyk]
 
 # Rozbudowany słownik interfejsu (UI) dla wielu języków
 ui = {
     "pl": {
+        "main_title": "Odkryj swój kod",
         "upload": "Wgraj swój surowy plik DNA. Twój plik jest analizowany lokalnie i natychmiast usuwany.",
         "drag": "Przeciągnij plik DNA (.txt/.csv)",
         "no_file": "Nie masz pliku DNA?",
@@ -148,6 +147,7 @@ ui = {
         "pay_btn": "💳 Zapłać 99 zł (SYMULACJA)"
     },
     "en": {
+        "main_title": "Discover your code",
         "upload": "Upload your raw DNA file. Your file is analyzed locally and deleted immediately.",
         "drag": "Drag and drop DNA file (.txt/.csv)",
         "no_file": "Don't have a DNA file?",
@@ -161,6 +161,7 @@ ui = {
         "pay_btn": "💳 Pay 25 EUR (SIMULATION)"
     },
     "de": {
+        "main_title": "Entdecke deinen Code",
         "upload": "Laden Sie Ihre rohe DNA-Datei hoch. Ihre Datei wird lokal analysiert und sofort gelöscht.",
         "drag": "DNA-Datei hier ablegen (.txt/.csv)",
         "no_file": "Haben Sie keine DNA-Datei?",
@@ -174,6 +175,7 @@ ui = {
         "pay_btn": "💳 25 EUR Bezahlen (SIMULATION)"
     },
     "fr": {
+        "main_title": "Découvrez votre code",
         "upload": "Téléchargez votre fichier ADN brut. Votre fichier est analysé localement et supprimé immédiatement.",
         "drag": "Faites glisser le fichier ADN (.txt/.csv)",
         "no_file": "Vous n'avez pas de fichier ADN ?",
@@ -187,6 +189,7 @@ ui = {
         "pay_btn": "💳 Payer 25 EUR (SIMULATION)"
     },
     "es": {
+        "main_title": "Descubre tu código",
         "upload": "Sube tu archivo de ADN sin procesar. Tu archivo se analiza localmente y se elimina de inmediato.",
         "drag": "Arrastra el archivo de ADN (.txt/.csv)",
         "no_file": "¿No tienes un archivo de ADN?",
@@ -200,6 +203,7 @@ ui = {
         "pay_btn": "💳 Pagar 25 EUR (SIMULACIÓN)"
     },
     "it": {
+        "main_title": "Scopri il tuo codice",
         "upload": "Carica il tuo file DNA grezzo. Il tuo file viene analizzato localmente ed eliminato immediatamente.",
         "drag": "Trascina il file DNA (.txt/.csv)",
         "no_file": "Non hai un file DNA?",
@@ -215,6 +219,9 @@ ui = {
 }
 
 t = ui[kod_jezyka]
+
+# Dynamiczny główny tytuł na stronie:
+st.title(f"🧬 YourDNA | {t['main_title']}")
 st.markdown(t["upload"])
 
 test_dna_content = """# Test DNA File
