@@ -6,62 +6,61 @@ import tempfile
 import os
 from fpdf import FPDF
 
-# 1. Ustawienia strony na SZEROKIE (Dashboard)
-st.set_page_config(page_title="YourDNA | Dashboard", page_icon="🧬", layout="wide", initial_sidebar_state="expanded")
+# 1. Ustawienia strony
+st.set_page_config(page_title="YourDNA | Panel Pacjenta", page_icon="🧬", layout="wide", initial_sidebar_state="expanded")
 
-# 2. Wstrzykiwanie "sterylnego" CSS (Stylizacja pod Genotek)
+# 2. Zaawansowany, sterylny CSS (Stylizacja pod aplikacje medyczne)
 st.markdown("""
 <style>
-    /* Gradientowy pasek boczny z Twojego zdjęcia */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #4b79a1 0%, #283e51 100%);
-        color: white !important;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-    }
-    
-    /* Czyste białe tło główne */
+    /* Reset tła na sterylny, jasnoszary kolor (jak w Genotek) */
     .stApp {
-        background-color: #FAFAFB;
+        background-color: #f7f9fc;
     }
     
-    /* Karty dashboardu */
-    .metric-card {
-        background-color: white;
+    /* Czysty, biały pasek boczny z delikatnym cieniem */
+    [data-testid="stSidebar"] {
+        background-color: #ffffff;
+        border-right: 1px solid #e2e8f0;
+    }
+    
+    /* Naprawa kolorów tekstów i nagłówków */
+    h1, h2, h3, p, span, label {
+        color: #1e293b !important;
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif !important;
+    }
+    
+    /* Sekcja wgrywania pliku (Upload) - zrobiona na 'czysto' */
+    [data-testid="stFileUploadDropzone"] {
+        background-color: #ffffff !important;
+        border: 2px dashed #cbd5e1 !important;
+        border-radius: 16px !important;
+        padding: 30px !important;
+        transition: all 0.3s ease;
+    }
+    [data-testid="stFileUploadDropzone"]:hover {
+        border-color: #3b82f6 !important;
+        background-color: #eff6ff !important;
+    }
+    
+    /* Białe Karty z wynikami */
+    .dashboard-card {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        border: 1px solid #f0f2f6;
-        text-align: center;
+        padding: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         margin-bottom: 20px;
     }
     
-    /* Pigułki statusu (jak 'mutation Detected' na zdjęciu) */
+    /* Pigułki statusu */
     .badge-red {
-        background-color: #fff0f0;
-        color: #d32f2f;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: bold;
-        border: 1px solid #ffcdd2;
-        display: inline-block;
-        margin-left: 10px;
+        background-color: #fee2e2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; margin-left: 10px; border: 1px solid #fca5a5;
     }
     .badge-green {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: bold;
-        border: 1px solid #c8e6c9;
-        display: inline-block;
-        margin-left: 10px;
+        background-color: #dcfce7; color: #22c55e; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; margin-left: 10px; border: 1px solid #86efac;
     }
     
-    /* Ukrycie standardowego nagłówka Streamlit */
+    /* Ukrycie standardowego górnego paska Streamlit */
     header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
@@ -97,8 +96,7 @@ def pobierz_wyniki_z_bazy(user_snps, jezyk="pl", has_paid=False):
             diag_info = cursor.fetchone()
             if diag_info:
                 tytul, opis = diag_info
-                # Prosta logika do ustalenia koloru pigułki
-                badge_class = "badge-red" if "ryzyko" in tytul.lower() or "wolny" in tytul.lower() else "badge-green"
+                badge_class = "badge-red" if "ryzyko" in tytul.lower() or "wolny" in tytul.lower() or "słaba" in tytul.lower() else "badge-green"
                 raport.append({
                     "cecha": name, "genotyp": user_genotype, "diagnoza": tytul, 
                     "szczegoly": opis, "is_premium": is_premium, "czestotliwosc": czestotliwosc, "badge": badge_class
@@ -108,7 +106,7 @@ def pobierz_wyniki_z_bazy(user_snps, jezyk="pl", has_paid=False):
 
 # --- PANEL BOCZNY (SIDEBAR) ---
 with st.sidebar:
-    st.markdown("## 🧬 YourDNA")
+    st.markdown("## 🧬 Genomika")
     st.markdown("---")
     
     jezyki = {"🇵🇱 Polski": "pl", "🇬🇧 English": "en"}
@@ -116,60 +114,67 @@ with st.sidebar:
     kod_jezyka = jezyki[wybrany_jezyk]
     
     st.markdown("---")
-    st.markdown("🛡️ **Prywatność**\nTwoje dane są przetwarzane lokalnie w przeglądarce.")
+    st.markdown("🛡️ **Prywatność i Bezpieczeństwo**\n\nTwoje dane nie opuszczają tej przeglądarki. Po zamknięciu karty plik ulega zniszczeniu.")
+    
     if st.session_state.is_paid:
-        st.success("Wersja Premium: Aktywna")
+        st.success("● Wersja Pełna (Odblokowana)")
     else:
-        st.warning("Wersja: Darmowa (Ograniczona)")
+        st.warning("● Wersja Podstawowa")
 
 # --- GŁÓWNY PANEL (DASHBOARD) ---
-st.title("Panel Pacjenta")
-st.markdown("Przeglądaj swoje predyspozycje genetyczne w oparciu o wgrany profil DNA.")
+st.title("Panel Zdrowia i Predyspozycji")
 
-uploaded_file = st.file_uploader("Dodaj plik genetyczny (.txt/.csv)", type=['txt', 'csv'])
+# Tworzymy elegancką kartę wokół uploadera
+st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
+st.markdown("#### Wgraj plik sekwencjonowania")
+st.caption("Obsługiwane formaty: TXT, CSV (m.in. 23andMe, AncestryDNA, MyHeritage)")
+
+uploaded_file = st.file_uploader("", type=['txt', 'csv'], label_visibility="collapsed")
+st.markdown('</div>', unsafe_allow_html=True)
 
 if not uploaded_file:
-    # Stylizowane miejsce na wgranie pliku
-    st.info("Oczekujemy na Twój plik z danymi genetycznymi. Przeciągnij go powyżej.")
+    # Sekcja dla osób bez pliku
+    st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
+    st.markdown("**Nie posiadasz własnego pliku DNA?** Zobacz, jak wygląda przykładowy raport.")
     test_dna_content = "# Test DNA\nrsid\tchromosome\tposition\tgenotype\nrs762551\t1\t123\tAA\nrs1815739\t11\t123\tCC\nrs9939609\t16\t123\tTT"
-    st.download_button(label="📥 Pobierz plik testowy", data=test_dna_content, file_name="test.txt")
+    st.download_button(label="📥 Pobierz plik demonstracyjny", data=test_dna_content, file_name="demo_dna.txt")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if uploaded_file is not None:
     file_content = uploaded_file.getvalue().decode("utf-8")
     genotypy_uzytkownika = parse_dna_file(file_content)
     gotowy_raport = pobierz_wyniki_z_bazy(genotypy_uzytkownika, kod_jezyka, st.session_state.is_paid)
     
-    # --- METRYKI (Hero Section) ---
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown(f'<div class="metric-card"><h4>Zbadane markery</h4><h2>{len(genotypy_uzytkownika):,}</h2></div>', unsafe_allow_html=True)
-    with col2:
-        st.markdown(f'<div class="metric-card"><h4>Wykryte cechy</h4><h2>{len(gotowy_raport)}</h2></div>', unsafe_allow_html=True)
-    with col3:
-        status = "Zakończona" if st.session_state.is_paid else "Częściowa"
-        st.markdown(f'<div class="metric-card"><h4>Status analizy</h4><h2>{status}</h2></div>', unsafe_allow_html=True)
-
-    # --- ZAKŁADKI (TABS - jak na zdjęciu) ---
-    tab1, tab2, tab3 = st.tabs(["🩺 Wyniki ogólne", "🍏 Odżywianie i Dieta", "🔒 Zablokowane Raporty"])
+    st.markdown("---")
+    
+    # --- ZAKŁADKI (TABS) ---
+    tab1, tab2, tab3 = st.tabs(["🩺 Wykryte Markery", "🍏 Dieta i Sport", "🔒 Raport Rozszerzony"])
     
     with tab1:
+        st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
         st.subheader("Wszystkie zbadane cechy")
+        st.caption("Poniżej znajduje się lista zidentyfikowanych wariantów genetycznych.")
+        
         for wynik in gotowy_raport:
-            # Tworzenie czystego wiersza w stylu Genotek (Tytuł + Pigułka)
             st.markdown(f"""
-            <div style="padding: 15px 0; border-bottom: 1px solid #eee;">
-                <span style="font-size: 1.1rem; font-weight: 500; color: #333;">{wynik['cecha']}</span>
+            <div style="padding: 15px 0; border-bottom: 1px solid #f1f5f9;">
+                <span style="font-size: 1.1rem; font-weight: 600; color: #0f172a;">{wynik['cecha']}</span>
                 <span class="{wynik['badge']}">{wynik['diagnoza']} ({wynik['genotyp']})</span>
-                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">{wynik['szczegoly']}</p>
+                <p style="color: #64748b; margin-top: 8px; font-size: 0.95rem; line-height: 1.5;">{wynik['szczegoly']}</p>
             </div>
             """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
             
     with tab2:
+        st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
         st.info("Kategoryzacja szczegółowa dostępna wkrótce (wymaga przypisania tagów w bazie).")
+        st.markdown('</div>', unsafe_allow_html=True)
         
     with tab3:
+        st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
         if not st.session_state.is_paid:
-            st.warning("Twój plik zawiera znacznie więcej danych (m.in. ryzyko urazów, metabolizm leków).")
+            st.warning("Twój plik zawiera dziesiątki tysięcy nieprzeanalizowanych markerów (m.in. ryzyko urazów, metabolizm leków, choroby układu krążenia).")
             st.button("💳 Odblokuj pełny profil za 99 zł", type="primary", use_container_width=True, on_click=process_payment)
         else:
             st.success("Wszystkie raporty zostały odblokowane!")
+        st.markdown('</div>', unsafe_allow_html=True)
