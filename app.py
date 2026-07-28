@@ -229,6 +229,14 @@ tytul_placeholder.title(f"🧬 YourDNA | {t['main_title']}")
 # Reszta interfejsu poniżej wyboru języka
 st.markdown(t["upload"])
 
+# Brakująca zawartość pliku testowego!
+test_dna_content = """# Test DNA File
+rsid\tchromosome\tposition\tgenotype
+rs762551\t1\t123\tAA
+rs1815739\t11\t123\tCC
+rs9939609\t16\t123\tTT
+"""
+
 col1, col2 = st.columns([2, 1])
 with col2:
     st.markdown(t["no_file"])
