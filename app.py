@@ -117,7 +117,10 @@ def pobierz_wyniki_z_bazy(user_snps, jezyk="pl", has_paid=False):
 
 # --- INTERFEJS UŻYTKOWNIKA ---
 
-# Wybór języka (Rozwijana lista z flagami i wyszukiwaniem)
+# 1. Tworzymy puste "pudełko" na samej górze strony
+tytul_placeholder = st.empty()
+
+# 2. Wybór języka (wyświetli się od razu pod tytułem)
 jezyki = {
     "🇵🇱 Polski": "pl",
     "🇬🇧 English": "en",
@@ -220,16 +223,11 @@ ui = {
 
 t = ui[kod_jezyka]
 
-# Dynamiczny główny tytuł na stronie:
-st.title(f"🧬 YourDNA | {t['main_title']}")
-st.markdown(t["upload"])
+# 3. Znamy już język, więc wrzucamy przetłumaczony tytuł w miejsce pustego pudełka na górze!
+tytul_placeholder.title(f"🧬 YourDNA | {t['main_title']}")
 
-test_dna_content = """# Test DNA File
-rsid\tchromosome\tposition\tgenotype
-rs762551\t1\t123\tAA
-rs1815739\t11\t123\tCC
-rs9939609\t16\t123\tTT
-"""
+# Reszta interfejsu poniżej wyboru języka
+st.markdown(t["upload"])
 
 col1, col2 = st.columns([2, 1])
 with col2:
